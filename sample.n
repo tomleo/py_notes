@@ -1,0 +1,20 @@
+h1:Unix Notes;
+h2:Find;
+p:
+find . -name T.java 	//#look in current directory for T.java
+find /etc -name '*conf' //#look for files ending in .conf in the /etc folder
+find . -name '*.xml'
+find . -not -name '*.java' -maxdepth 4  //#quotes keep shell from expanding wildcards
+find . -type f		//#find files
+find . -type d		//#find directories
+find . -type l		//#find links
+find . -mtime -1	//#changed within a day
+find . -mmin -15        //#changed within 15 minutes
+find . -newer foo.txt   //#compare to filea
+find . -type f -newermt '2010-01-01'    //#compare to date
+find . -type f -newermt '2010-01-01' ! -newermt '2010-06-01'    //#find file between dates
+find . -perm 644        //#find via permissions
+find . -perm -ug=w
+find . -size -1k        //#find with size less than 1k
+find . -size +100M      //#find with size more than 100MB
+;
