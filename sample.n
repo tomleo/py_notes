@@ -1,6 +1,6 @@
 h1:Unix Notes;
 h2:Find;
-p:
+ps:
 find . -name T.java 	//#look in current directory for T.java
 find /etc -name '*conf' //#look for files ending in .conf in the /etc folder
 find . -name '*.xml'

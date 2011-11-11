@@ -1,3 +1,4 @@
+import sys
 import re
 import pprint
 class parseNotes(object):
@@ -9,74 +10,64 @@ class parseNotes(object):
                          #(or a named tupple?)
 
     def main(self, file_in):
-        file_out = '{0}.html'.format(file_in.split('.')[:-1])
+        print "file_in: ", file_in
+        file_out = '{0}.html'.format(file_in.split('.')[0])
+        print "File out is: ", file_out
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
-        with open(file_out) as file_out_obj:
+        with open(file_out, "w") as file_out_obj:
+            file_out_obj.write("""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PyParsed Note</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div role="main" id="wrap">
+""")
             self.make_html(file_out_obj)
+            file_out_obj.write("</div></body></html>")
 
     def make_sections(self, file_in_obj):
         file_string = file_in_obj.read()
-        ##TODO Need to edit regex so that it includes p elements - http://www.pythonregex.com/
+        ##TODO Need to edit regex so that it includes p elements
+            # http://www.pythonregex.com/
+            # http://docs.python.org/library/re.html
+            # http://bytebaker.com/2008/11/03/switch-case-statement-in-python/
         #regex = re.compile("([h]{1}[1-9]{1}[:]{1}[\w\s\d]{1,};$)",re.MULTILINE)
-        regex = re.compile("[h]{1}[1-9]{1}[:]|[p]{1}[:]")
+        regex = re.compile("[h]{1}[1-9]{1}[:]|[p]{1}[s]{1}[:]")
         values = re.split(regex, file_string)
         values.pop(0) #this might be a bad idea...
         elements = re.findall(regex,file_string)
-        self.master = dict((x[:-1], y.strip()[:-1]) for x, y in zip(elements,values))
+        print "values: ", values
+        print "elements: ", elements
+        self.master = list((x[:-1], y.strip()[:-1]) for x, y in zip(elements,values))
 
     def make_html(self, file_out_obj):
         for element in self.master:
-            self.format_html(element, self.master[element])
+            file_out_obj.write(self.format_html(element[0], element[1]))
 
     def format_html(self, bun, meat):
-        html_elements = {'h1': _h1,
-                         'h2': _h2,
-                         'h3': _h3,
-                         'h4': _h4,
-                         'h5': _h5,
-                         'h6': _h6,
-                         'h7': _h7,
-                         'h8': _h8,
-                         'h9': _h9,
-                         'p': _p,
-                         'code': _code
-                         }
+        html_headers = ('h1','h2','h2','h3','h4','h5','h6','h7','h8','h9')
+        if bun in html_headers:
+            return "<{0}>{1}</{2}>\n".format(bun, meat, bun)
+        elif 'p' in bun:
+            ret = ""
+            for line in meat.split('\n'):
+                if '//#' in line:
+                    l=line.split('//#')
+                    ret+='<p class="ps">{0}<span class="comment">{1}</span></p>\n'.format(l[0],l[1])
+                else:
+                    ret+='<p class="ps">{0}</p>\n'.format(line)
+            return ret
+        elif bun is 'code':
+            pass
+        else:
+            print 'bun value was: ', bun
+
         #is there a way to pass values with an assosiative array?
-        html_elements[bun]
-
-    def _h1():
-        pass
-
-    def _h2():
-        pass
-    
-    def _h3():
-        pass
-
-    def _h4():
-        pass
-
-    def _h5():
-        pass
-
-    def _h6():
-        pass
-
-    def _h7():
-        pass
-
-    def _h8():
-        pass
-
-    def _h9():
-        pass
-
-    def _p():
-        pass
-
-    def _code():
-        pass
+        #html_elements[bun]()
 
 
 if __name__ == '__main__':

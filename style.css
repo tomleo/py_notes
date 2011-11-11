@@ -1,0 +1,4 @@
+body { font-family: arial, Georgia; }
+#wrap { display: relative; widht="800px"; }
+.comment { float: right; clear: left; display: block; border: 1px solid black; padding: 3px 3px 0 3px; background: black; color: white; }
+.ps { border-bottom: 1px dashed black; }
