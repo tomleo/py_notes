@@ -1,5 +1,5 @@
-h1:Unix Notes;
-h2:Find;
+h1:Unix Notes
+h2:Find
 ps:
 find . -name T.java 	//#look in current directory for T.java
 find /etc -name '*conf' //#look for files ending in .conf in the /etc folder
@@ -17,8 +17,22 @@ find . -perm 644        //#find via permissions
 find . -perm -ug=w
 find . -size -1k        //#find with size less than 1k
 find . -size +100M      //#find with size more than 100MB
-;
-h2:Search;
+
+h2:Search
 p: Nothing to see here atm
 Adding another line of text right here!
-;
+
+code<C++>:
+int main() {
+	cout << "This is C++ code" << endl;
+}
+endcode
+
+code<python>:
+class parseNotes(object):
+    def __init__(self, file, *args, **kargs):
+        self.elements=None
+    	self.main(file)
+    	self.BR=None
+    	self.master=None
+endcode

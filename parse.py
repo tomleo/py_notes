@@ -1,20 +1,27 @@
 import sys
 import re
 import pprint
+
+from pygments import highlight
+from pygments.lexers import (guess_lexer, 
+                             guess_lexer_for_filename,
+                             get_lexer_by_name,
+                             get_lexer_for_filename,
+                             get_lexer_for_mimetype)
+from pygments.formatters import HtmlFormatter
+
 class parseNotes(object):
     def __init__(self, file, *args, **kargs):
         self.elements=None
         self.main(file)
-        self.BR=1
-        self.master=None #A problem with this is that it will not be able to
-                         #handle multiple elements, a muti-key dictionary would be nessisary 
-                         #(or a named tupple?)
-        
+        self.BR=None
+        self.master=None
 
     def main(self, file_in):
         print "file_in: ", file_in
         file_out = '{0}.html'.format(file_in.split('.')[0])
         print "File out is: ", file_out
+        self.BR=1
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
         with open(file_out, "w") as file_out_obj:
@@ -24,6 +31,7 @@ class parseNotes(object):
 <meta charset="utf-8">
 <title>PyParsed Note</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="code.css">
 </head>
 <body>
 <div role="main" id="wrap">
@@ -33,18 +41,15 @@ class parseNotes(object):
 
     def make_sections(self, file_in_obj):
         file_string = file_in_obj.read()
-        ##TODO Need to edit regex so that it includes p elements
-            # http://www.pythonregex.com/
-            # http://docs.python.org/library/re.html
-            # http://bytebaker.com/2008/11/03/switch-case-statement-in-python/
+        # http://www.pythonregex.com/
+        # http://docs.python.org/library/re.html
+        # http://bytebaker.com/2008/11/03/switch-case-statement-in-python/
         #regex = re.compile("([h]{1}[1-9]{1}[:]{1}[\w\s\d]{1,};$)",re.MULTILINE)
-        regex = re.compile("[h]{1}[1-9]{1}[:]|[p]{1}[s]{1}[:]|[p]{1}[:]")
+        regex = re.compile("[h]{1}[1-9]{1}[:]|[p]{1}[s]{1}[:]|[p]{1}[:]|[c][o][d][e][<]")
         values = re.split(regex, file_string)
         values.pop(0) #this might be a bad idea...
         elements = re.findall(regex,file_string)
-        #print "values: ", values
-        #print "elements: ", elements
-        self.master = list((x[:-1], y.strip()[:-1]) for x, y in zip(elements,values))
+        self.master = list((x[:-1], y.strip()[:]) for x, y in zip(elements,values))
         pprint.pprint(self.master)
 
     def make_html(self, file_out_obj):
@@ -65,25 +70,32 @@ class parseNotes(object):
                     ret+='<p class="ps">{0}</p>\n'.format(line)
             return ret
         elif 'p' in bun:
-            #Should all \n's be replaced with <br />'s?
             if self.BR:
                 meat=meat.split('\n')
                 ret='<p>'
                 for line in meat:
                     ret+=line+'<br />'
-            #[ret+=line+'<br />' for line in meat]
                 ret+='</p>\n'
                 return ret
             else:
                 return '<p>{0}</p>'.format(meat)
-        elif bun is 'code':
-            pass
+        elif 'code' in bun:
+            i = meat.find('>')
+            lang = meat[:i]
+            code = meat[i+2:-7] #-7 to remove endcode...
+
+            print "Get lexer by name"
+            lang_=get_lexer_by_name(lang.lower())
+            print lang_
+
+            style_=HtmlFormatter(style='colorful').style
+            format_=HtmlFormatter(style=style_)
+            format_.noclasses = False
+            format_.cssclass='code'
+            format_.cssfile='code.css'
+            return highlight(code, lang_, format_)
         else:
             print 'bun value was: ', bun
-
-        #is there a way to pass values with an assosiative array?
-        #html_elements[bun]()
-
 
 if __name__ == '__main__':
     test = parseNotes('sample.n')
