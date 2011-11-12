@@ -18,3 +18,7 @@ find . -perm -ug=w
 find . -size -1k        //#find with size less than 1k
 find . -size +100M      //#find with size more than 100MB
 ;
+h2:Search;
+p: Nothing to see here atm
+Adding another line of text right here!
+;
