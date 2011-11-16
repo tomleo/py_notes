@@ -17,6 +17,8 @@ class parseNotes(object):
         self.BR=None
         self.master=None
 
+        self.struct
+
     def main(self, file_in):
         print "file_in: ", file_in
         file_out = '{0}.html'.format(file_in.split('.')[0])
@@ -59,17 +61,25 @@ class parseNotes(object):
     def format_html(self, bun, meat):
         html_headers = ('h1','h2','h2','h3','h4','h5','h6','h7','h8','h9')
         if bun in html_headers:
+            #struct.add_header(meat)
             return "<{0}>{1}</{2}>\n".format(bun, meat, bun)
         elif 'ps' in bun:
+            #child=struct.get_last(header).add_title(bun)
+            ##ps=struct.get_last(header).append_ps(bun)
             ret = ""
             for line in meat.split('\n'):
                 if '//#' in line:
                     l=line.split('//#')
+                    #child.add_element(l[0], comment=l[1])
+                    ##ps.append(l[0])
                     ret+='<p class="ps">{0}<span class="comment">{1}</span></p>\n'.format(l[0],l[1])
                 else:
+                    #child.add_element(line)
+                    ##ps.append(l[0])
                     ret+='<p class="ps">{0}</p>\n'.format(line)
             return ret
         elif 'p' in bun:
+            #struct.get_last(header).append_p(meat)
             if self.BR:
                 meat=meat.split('\n')
                 ret='<p>'
@@ -83,7 +93,7 @@ class parseNotes(object):
             i = meat.find('>')
             lang = meat[:i]
             code = meat[i+2:-7] #-7 to remove endcode...
-
+            #struct.get_last(header).append_code(lang, code)
             print "Get lexer by name"
             lang_=get_lexer_by_name(lang.lower())
             print lang_
