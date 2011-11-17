@@ -10,13 +10,22 @@ from pygments.lexers import (get_lexer_by_name,
                              get_lexer_for_mimetype)
 from pygments.formatters import HtmlFormatter
 
+class DOM(list):
+
+    def __init__(self, title=None):
+        self.title=title
+        self.objects=[]
+
+    def append(self, obj):
+        self.objects.append(obj)
+
 class Element(object):
 
     def __init__(self, name_):
         #self.type_=type_
         self.name_=name_
 
-class Headers(element):
+class Header(Element):
 
     def __init__(self, name_, type_):
         self.type_=type_
@@ -36,38 +45,78 @@ class Headers(element):
         else:
             return head
 
-class P(element):
+class P(Element):
 
-    def __init__(self, name_, content_):
+    def __init__(self, content_, br_=True):
         self.content_=content_
-        super().__init__(name_)
+        self.comments_=[]
+        self.br_=br_
+        super().__init__(name_="")
 
     def get_html(self):
-        return "<p>{0}</p>".format(self.content_)
-        
+        html=['<p>']
+        if self.br_:
+            lines=self.content_.split('\n')
+            for line in lines:
+                if '//#' in line:
+                    l=line.split('//#')
+                    temp='{0} <span class="comments">{1}</span>'.format(l[0],l[1])
+                    html.append(temp)
+                else:
+                    html.append(line)
+                html.append('<br />\n')
+        #No support for comments in paragraphs that are not seperated by \n's
+        #unless everything after //# should be interpreted as a comment...
+            html.append('</p>')
+            return '\n'.join(html)
+        else:
+            html.append(self.content_)
+            html.append('</p>')
+            return '\n'.join(html)
 
-class Ps(element):
+class Ps(Element):
      
-    def __init__(self, name_, content_):
-        self.content=content_
+    def __init__(self, content_=None, comments_=None):
+        if content_:
+            self.content_=content_
+        else:
+            self.content_=[]
+        if comments_:
+            self.comments_=comments_
+        else:
+            self.comments_=[]
+        name_=""
         super().__init__(name_)
+
+    def add_line(self, line, comment=None):
+        self.content_.append(line)
+        if comment:
+            self.comments_.append(comment)
+        else:
+            self.comments_.append(None)
 
     def get_html(self):
         html=[]
-        for line in content:
-            html.append('<p class="ps">{0}</p>'.format(line))
+        for i, line in enumerate(self.content_):
+            if self.comments_[i]:
+                #html.append('<p class="ps">{0} <span class="comments">{1}</span></p>'.format(line,
+                #                                                                    self.comments_[i]))
+                #html.append('<p class="ps"> {0} <a href="#" title="Comment">{1}</a></p>'.format(line, self.comments_[i]))
+                html.append('<p class="ps"><a href="#" title="{1}">{0}</a></p>'.format(line, self.comments_[i]))
+            else:
+                html.append('<p class="ps"> {0} </p>'.format(line))
         return '\n'.join(html)
             
-class Code(element):
+class Code(Element):
 
-    def __init__(self, name_="", lang_, code_):
+    def __init__(self, lang_, code_, name_=""):
         self.lang_=lang_
         self.code_=code_
         super().__init__(name_)
 
-    def get_html(self, style='colorful'):
+    def get_html(self, style_='colorful'):
         lex=get_lexer_by_name(self.lang_.lower())
-        htmlFormat=HtmlFormatter(style)
+        htmlFormat=HtmlFormatter(style=style_)
         htmlFormat.noclasses=False
         htmlFormat.cssclass='code'
         htmlFormat.cssfile='code.css'
@@ -75,19 +124,20 @@ class Code(element):
         
 
 class parseNotes(object):
-    def __init__(self, file, *args, **kargs):
-        self.elements=None
-        self.main(file)
+    def __init__(self, file_, *args, **kargs):
+        self.elements_=None
+        self.main(file_)
+        
         self.BR=None
         self.master=None
 
-        self.struct
+        self.DOM_=None
 
     def main(self, file_in):
-        print ("file_in: ", file_in)
-        file_out = '{0}.html'.format(file_in.split('.')[0])
-        print ("File out is: ", file_out)
+        file_=file_in.split('.')[0]
+        file_out='{0}.html'.format(file_)
         self.BR=1
+        self.DOM_=DOM()
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
         with open(file_out, "w") as file_out_obj:
@@ -98,6 +148,12 @@ class parseNotes(object):
 <title>PyParsed Note</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="code.css">
+<link rel="stylesheet" href="tooltips.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script src="tooltips.js"></script>
+<script>
+$(function() { $(".ps a[title]").tooltips();  });
+</script>
 </head>
 <body>
 <div role="main" id="wrap">
@@ -107,10 +163,6 @@ class parseNotes(object):
 
     def make_sections(self, file_in_obj):
         file_string = file_in_obj.read()
-        # http://www.pythonregex.com/
-        # http://docs.python.org/library/re.html
-        # http://bytebaker.com/2008/11/03/switch-case-statement-in-python/
-        #regex = re.compile("([h]{1}[1-9]{1}[:]{1}[\w\s\d]{1,};$)",re.MULTILINE)
         regex = re.compile("[h]{1}[1-9]{1}[:]|[p]{1}[s]{1}[:]|[p]{1}[:]|[c][o][d][e][<]")
         values = re.split(regex, file_string)
         values.pop(0) #this might be a bad idea...
@@ -125,49 +177,28 @@ class parseNotes(object):
     def format_html(self, bun, meat):
         html_headers = ('h1','h2','h2','h3','h4','h5','h6','h7','h8','h9')
         if bun in html_headers:
-            #struct.add_header(meat)
-            return "<{0}>{1}</{2}>\n".format(bun, meat, bun)
+            head=Header(meat,bun)
+            self.DOM_.append(head)
+            return head.get_html()
         elif 'ps' in bun:
-            #child=struct.get_last(header).add_title(bun)
-            ##ps=struct.get_last(header).append_ps(bun)
-            ret = ""
+            ps=Ps()
             for line in meat.split('\n'):
                 if '//#' in line:
                     l=line.split('//#')
-                    #child.add_element(l[0], comment=l[1])
-                    ##ps.append(l[0])
-                    ret+='<p class="ps">{0}<span class="comment">{1}</span></p>\n'.format(l[0],l[1])
+                    ps.add_line(l[0], comment=l[1])
                 else:
-                    #child.add_element(line)
-                    ##ps.append(l[0])
-                    ret+='<p class="ps">{0}</p>\n'.format(line)
-            return ret
+                    ps.add_line(line)
+            return ps.get_html()
         elif 'p' in bun:
-            #struct.get_last(header).append_p(meat)
-            if self.BR:
-                meat=meat.split('\n')
-                ret='<p>'
-                for line in meat:
-                    ret+=line+'<br />'
-                ret+='</p>\n'
-                return ret
-            else:
-                return '<p>{0}</p>'.format(meat)
+            return P(meat).get_html()
         elif 'code' in bun:
             i = meat.find('>')
             lang = meat[:i]
             code = meat[i+2:-7] #-7 to remove endcode...
-            #struct.get_last(header).append_code(lang, code)
-            print ("Get lexer by name")
-            lang_=get_lexer_by_name(lang.lower())
-            print (lang_)
-
-            style_=HtmlFormatter(style='colorful').style
-            format_=HtmlFormatter(style=style_)
-            format_.noclasses = False
-            format_.cssclass='code'
-            format_.cssfile='code.css'
-            return highlight(code, lang_, format_)
+            #style_=HtmlFormatter(style='colorful').style
+            #format_=HtmlFormatter(style=style_)
+            c=Code(lang, code)
+            return c.get_html()
         else:
             print ('bun value was: ', bun)
 

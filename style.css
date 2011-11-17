@@ -1,6 +1,38 @@
-html { width: 100%; } 
-body { font-family: arial, sans-serif; font-size: 16px; line-height:24px; width:600px; margin: 0 auto; }
+html {	 width: 100%; } 
+
+body { 	font-family: arial, sans-serif;
+	font-size: 16px;
+	line-height:24px;
+	width:600px;
+	margin: 0 auto; }
+
 p { font-family: Georgia, serif; }
-#wrap { display: block;}
-.comment { float: right; clear: left; display: block; border: 1px solid black; padding: 3px 3px 0 3px; background: black; color: white; font-family: arial, sans-serif; font-size: 0.8em; overflow: hidden; clear: right; }
+
+#wrap { display: block; }
+
+.comments { float: right;
+	    clear: left;
+	    display: block;
+	    border: 1px solid black;
+	    padding: 3px 3px 0 3px;
+	    background: black;
+	    color: white;
+	    font-family: arial, sans-serif;
+	    font-size: 0.8em;
+	    overflow: hidden;
+	    clear: right; }
+
 .ps { border-bottom: 1px dashed black; font-family: arial, sans-serif; }
+
+h1 span {
+	display: inline-block;
+	padding: 10px 20px;
+	background: black;
+	border: 2px solid white;
+	color: white;
+	border-radius: 20px;
+	margin-top: 20px;
+	text-align: center;
+	text-decoration: none;
+	box-shadow: 0 0 7px black;
+}

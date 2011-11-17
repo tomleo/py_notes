@@ -1,5 +1,95 @@
+h1:CSS Notes
+h2:Tricks and Tips
+h3:Make container elements play nice with padding and margins
+p:Set width of container, then set margin and padding on the elements within them
+p:My rule of thumb is, if I set a width, I don't set margin or padding. Likewise, if I'm setting a margin or padding, I don't set a width. Dealing with the box model can be such a pain, especially if you're dealing with percentages. Therefore, I set the width on the containers and then set margin and padding on the elements within them. Everything usually turns out swimmingly.
+
+h3:Min-Height in IE
+code<css>:
+selector {
+	min-height:500px;
+	height:auto !important;
+	height:500px;
+}
+endcode
+
+h3:Double Margin Bug (IE6)
+p:The Solution is
+code<css>:
+dispilay:inline
+endcode
+
+h3: Conditional CSS
+code<css>:
+<!--[if IE ]>
+<![endif]-->
+endcode
+
+h2:Floats
+p:Text wraps around block with float attribute.
+p:When float left and right, you must clear so wrapper box does not collapse.
+code<css>:
+clear: both; //#looks bad symanticaly
+overflow: auto; //#creates scroll bar
+overflow: hidden; //#creates float, text hidden can not be gotten
+endcode
+p:don't apply margin in the way your box is floated (double margin bug)
+
+h2:Typography
+ps: &mdash; 	#// __
+&hellip;	#// ...
+&copy;		#// (c)
+&ldquo/&rdquo	#// ""
+""		#// For Inches
+&lsquo/&rsquo	#// ''
+''		#// For Feet
+&hellip		#// ...
+h3:Setting EM size to 10px instead of 12px
+code<css>:
+html	{font-size:16px; } 	/* Make sure the default is always 16px */
+body	{font-size:62.5%; } 	/* 16px * 62.5% = 10px : 1em now = 10px*/
+p	{font-size:1.2em; }	/* 12px */
+endcode
+p: Line Height should have the ratio 	150%/1.5em
+p: Testing Contrast - Screen Shot website, make it grey-scale in photoshop
+p:
+- hyphen	Jacob Kaplan-Moss
+- en dash	2:00-3:00
+- em dash	
+- minus		Subtration (20-5=15)
+
+h3:Typography and CSS3!
+h4: @font-face
+code<css>:
+@font-face { font-family: "Fontin-Italic"; src: url('Fontin-Italic.otf') format('opentype'); }
+endcode
+h4: Drop shadow
+code<css>:
+-webkit-box-shadow: 5px 5px 5px #888;	/* Adds drop shadow to fonts */
+-moz-box-shadow: 5px 5px 5px #888;
+endcode
+
+h3: The Font attribute
+code<css>:
+font-style: (italic, oblique, normal)
+font-variant: (normal, small-caps)
+font-weight: (lighter, normal, bold, bolder)
+font-size: (lots)
+line-height: (nornal, units)
+font-family: ()
+
+font: (font-style font-variant font-weight font-size/line-height font-family)
+
+parent { font: italic <font-variant> <font-weight> <font-size>/<line-height> <font-family>; }
+child  { <font-variant> <font-weight> <font-size>/<line-height> <font-family>; }
+#// NOTE: the child element will not inherit "italic", instead omitted attribues are set to there "default" value which is usually "normal" 
+
+font-variant: (small-caps)
+text-transform: (uppercase, lowercase, capitalize, none)
+endcode
+
 h1:Unix Notes
-h2:Find
+h2:The Find Command
 ps:
 find . -name T.java 	//#look in current directory for T.java
 find /etc -name '*conf' //#look for files ending in .conf in the /etc folder
@@ -21,13 +111,11 @@ find . -size +100M      //#find with size more than 100MB
 h2:Search
 p: Nothing to see here atm
 Adding another line of text right here!
-
 code<C++>:
 int main() {
 	cout << "This is C++ code" << endl;
 }
 endcode
-
 code<python>:
 class parseNotes(object):
     def __init__(self, file, *args, **kargs):
@@ -36,3 +124,6 @@ class parseNotes(object):
     	self.BR=None
     	self.master=None
 endcode
+p: This paragraph will have some comments in it!!!
+I know a comment in a paragraph? But why //# This is a paragraph comment
+This is some more text right here also
