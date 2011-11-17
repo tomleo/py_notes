@@ -1,14 +1,78 @@
+#/usr/bin/python3.2
+
 import sys
 import re
 import pprint
 
 from pygments import highlight
-from pygments.lexers import (guess_lexer, 
-                             guess_lexer_for_filename,
-                             get_lexer_by_name,
+from pygments.lexers import (get_lexer_by_name,
                              get_lexer_for_filename,
                              get_lexer_for_mimetype)
 from pygments.formatters import HtmlFormatter
+
+class Element(object):
+
+    def __init__(self, name_):
+        #self.type_=type_
+        self.name_=name_
+
+class Headers(element):
+
+    def __init__(self, name_, type_):
+        self.type_=type_
+        self.children=[]
+        super().__init__(name_)
+
+    def add_child(self, obj):
+        self.children.append(obj)
+
+    def get_html(self, andChildren=False):
+        head="<{0}>{1}</{0}>".format(self.type_, self.name_)
+        if andChildren:
+            html=[]
+            for child in children:
+               html.append(child.get_html)
+               return '\n'.join(html.insert(head))
+        else:
+            return head
+
+class P(element):
+
+    def __init__(self, name_, content_):
+        self.content_=content_
+        super().__init__(name_)
+
+    def get_html(self):
+        return "<p>{0}</p>".format(self.content_)
+        
+
+class Ps(element):
+     
+    def __init__(self, name_, content_):
+        self.content=content_
+        super().__init__(name_)
+
+    def get_html(self):
+        html=[]
+        for line in content:
+            html.append('<p class="ps">{0}</p>'.format(line))
+        return '\n'.join(html)
+            
+class Code(element):
+
+    def __init__(self, name_="", lang_, code_):
+        self.lang_=lang_
+        self.code_=code_
+        super().__init__(name_)
+
+    def get_html(self, style='colorful'):
+        lex=get_lexer_by_name(self.lang_.lower())
+        htmlFormat=HtmlFormatter(style)
+        htmlFormat.noclasses=False
+        htmlFormat.cssclass='code'
+        htmlFormat.cssfile='code.css'
+        return highlight(self.code_, lex, htmlFormat) 
+        
 
 class parseNotes(object):
     def __init__(self, file, *args, **kargs):
@@ -20,9 +84,9 @@ class parseNotes(object):
         self.struct
 
     def main(self, file_in):
-        print "file_in: ", file_in
+        print ("file_in: ", file_in)
         file_out = '{0}.html'.format(file_in.split('.')[0])
-        print "File out is: ", file_out
+        print ("File out is: ", file_out)
         self.BR=1
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
@@ -94,9 +158,9 @@ class parseNotes(object):
             lang = meat[:i]
             code = meat[i+2:-7] #-7 to remove endcode...
             #struct.get_last(header).append_code(lang, code)
-            print "Get lexer by name"
+            print ("Get lexer by name")
             lang_=get_lexer_by_name(lang.lower())
-            print lang_
+            print (lang_)
 
             style_=HtmlFormatter(style='colorful').style
             format_=HtmlFormatter(style=style_)
@@ -105,7 +169,7 @@ class parseNotes(object):
             format_.cssfile='code.css'
             return highlight(code, lang_, format_)
         else:
-            print 'bun value was: ', bun
+            print ('bun value was: ', bun)
 
 if __name__ == '__main__':
     test = parseNotes('sample.n')
