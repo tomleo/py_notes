@@ -7,7 +7,7 @@ p:My rule of thumb is, if I set a width, I don't set margin or padding. Likewise
 h3:Min-Height in IE
 code<css>:
 selector {
-	min-height:500px;
+	min-height:500px; //# This is a code comment parse this!
 	height:auto !important;
 	height:500px;
 }
@@ -16,7 +16,7 @@ endcode
 h3:Double Margin Bug (IE6)
 p:The Solution is
 code<css>:
-dispilay:inline
+display:inline
 endcode
 
 h3: Conditional CSS
@@ -36,14 +36,14 @@ endcode
 p:don't apply margin in the way your box is floated (double margin bug)
 
 h2:Typography
-ps: &mdash; 	#// __
-&hellip;	#// ...
-&copy;		#// (c)
-&ldquo/&rdquo	#// ""
-""		#// For Inches
-&lsquo/&rsquo	#// ''
-''		#// For Feet
-&hellip		#// ...
+ps: &mdash; 	//# __
+&hellip;	//# ...
+&copy;		//# (c)
+&ldquo/&rdquo	//# ""
+""		//# For Inches
+&lsquo/&rsquo	//# ''
+''		//# For Feet
+&hellip		//# ...
 h3:Setting EM size to 10px instead of 12px
 code<css>:
 html	{font-size:16px; } 	/* Make sure the default is always 16px */

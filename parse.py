@@ -112,15 +112,71 @@ class Code(Element):
     def __init__(self, lang_, code_, name_=""):
         self.lang_=lang_
         self.code_=code_
+        self.comments_=[]
+        #codelen1=len(self.code_)#
+        if '//#' in self.code_:
+            self.pull_comments()
+        #codelen2=len(self.code_)#
+        #print("before: ", codelen1, " after: ", codelen2)
         super().__init__(name_)
 
+    def pull_comments(self):
+        #print("1. len of code: ", len(self.code_))
+        self.code_=self.code_.split('\n')
+        for i, line in enumerate(self.code_):
+            if '//#' in line:
+                cline = line.split('//#')
+                self.comments_.insert(i, cline[1])
+                self.code_[i]=cline[0]
+                #print ("line after pull: ", self.code_[i])
+                #print ("len of code: ", len(self.code_))
+                #exit()
+            else:
+                self.comments_.insert(i, None)
+        #print("Live from pull_comments()")
+        #print("Code length: ", len(self.code_))
+        #print("Comment length: ", len(self.comments_))
+        self.code_='\n'.join(self.code_)
+        #print("2. len of code: ", len(self.code_))
+        #print("\n")
+
+               
+    #Need to find a way to insert 'a' tag into the content of code after it has
+    #been rendered into html code, also don't want the a tag to wrap block
+    #elements as that would not be valid html
+    #
+    #an insert type function for strings would make this more doable
     def get_html(self, style_='colorful'):
+        #Pygments configuration
         lex=get_lexer_by_name(self.lang_.lower())
         htmlFormat=HtmlFormatter(style=style_)
         htmlFormat.noclasses=False
         htmlFormat.cssclass='code'
         htmlFormat.cssfile='code.css'
-        return highlight(self.code_, lex, htmlFormat) 
+
+        html=highlight(self.code_, lex, htmlFormat)
+      
+        self.code_=self.code_.split('\n')
+   
+        assert(len(self.code_)==len(self.comments_))
+        print("About to enter the get_html() function forloop")
+        for i, line in enumerate(self.code_):
+            if self.comments_[i]:
+                #tmp=list(html.partition(self.code_[i]))
+                tmp=list(html.partition('<pre>'))
+                print("1. ", tmp)
+
+                before='<a href="#" title="{0}">'.format(self.comments_[i])
+                tmp.insert(2, before)
+
+                print("2. ", tmp)
+
+                after='</a>'
+                tmp.insert(3, after)
+
+                html=''.join(tmp)
+                print("3. ", tmp)
+        return html
         
 
 class parseNotes(object):
@@ -168,7 +224,7 @@ $(function() { $(".ps a[title]").tooltips();  });
         values.pop(0) #this might be a bad idea...
         elements = re.findall(regex,file_string)
         self.master = list((x[:-1], y.strip()[:]) for x, y in zip(elements,values))
-        pprint.pprint(self.master)
+        #pprint.pprint(self.master)
 
     def make_html(self, file_out_obj):
         for element in self.master:
@@ -197,10 +253,13 @@ $(function() { $(".ps a[title]").tooltips();  });
             code = meat[i+2:-7] #-7 to remove endcode...
             #style_=HtmlFormatter(style='colorful').style
             #format_=HtmlFormatter(style=style_)
-            c=Code(lang, code)
-            return c.get_html()
+            c=Code(lang, code).get_html()
+            print(c)
+            exit()
+            return c
         else:
-            print ('bun value was: ', bun)
+            pass
+            #print ('bun value was: ', bun)
 
 if __name__ == '__main__':
     test = parseNotes('sample.n')
