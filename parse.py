@@ -156,28 +156,41 @@ class Code(Element):
 
         html=highlight(self.code_, lex, htmlFormat)
       
-        self.code_=self.code_.split('\n')
-   
-        assert(len(self.code_)==len(self.comments_))
-        print("About to enter the get_html() function forloop")
-        for i, line in enumerate(self.code_):
-            if self.comments_[i]:
-                #tmp=list(html.partition(self.code_[i]))
-                tmp=list(html.partition('<pre>'))
-                print("1. ", tmp)
-
-                before='<a href="#" title="{0}">'.format(self.comments_[i])
-                tmp.insert(2, before)
-
-                print("2. ", tmp)
-
-                after='</a>'
-                tmp.insert(3, after)
-
-                html=''.join(tmp)
-                print("3. ", tmp)
-        return html
+        #self.code_=self.code_.split('\n')
+        #assert(len(self.code_)==len(self.comments_))
+        #print("About to enter the get_html() function forloop")
+        #for i, line in enumerate(self.code_):
+        #    if self.comments_[i]:
+        #        #tmp=list(html.partition(self.code_[i]))
+        #        tmp=list(html.partition('<pre>'))
+        #        print("1. ", tmp)
+        #        before='<a href="#" title="{0}">'.format(self.comments_[i])
+        #        tmp.insert(2, before)
+        #        print("2. ", tmp)
+        #        after='</a>'
+        #        tmp.insert(3, after)
+        #        html=''.join(tmp)
+        #        print("3. ", tmp)
         
+        # re.I = ignore case
+        # re.S = dotall
+        html=html.split('\n')
+        for i, line in enumerate(html[:]):
+            if self.comments_[i]:
+                pattern = re.compile('<pre>(.*?)</pre>', re.I | re.S)
+                temp=pattern.split(line)
+                temp.insert(1, '<a href="#" title={0}">'.format(self.comment_[i]))
+                temp.insert(4, '</a>')
+
+        html.join('\n')
+
+         
+        #for i, each in enumerate(pattern.split(html)):
+        #    print(i, " ", each)
+           
+        return html
+       
+
 
 class parseNotes(object):
     def __init__(self, file_, *args, **kargs):
@@ -254,12 +267,13 @@ $(function() { $(".ps a[title]").tooltips();  });
             #style_=HtmlFormatter(style='colorful').style
             #format_=HtmlFormatter(style=style_)
             c=Code(lang, code).get_html()
-            print(c)
+            #print(c)
             exit()
             return c
         else:
             pass
             #print ('bun value was: ', bun)
+
 
 if __name__ == '__main__':
     test = parseNotes('sample.n')
