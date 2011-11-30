@@ -1,4 +1,4 @@
-#/usr/bin/python3.2
+#/usr/bin/python3
 
 import sys
 import re
@@ -7,8 +7,13 @@ import pprint
 from pygments import highlight
 from pygments.lexers import (get_lexer_by_name,
                              get_lexer_for_filename,
-                             get_lexer_for_mimetype)
+                             get_lexer_for_mimetype,
+                             RegexLexer,
+                             DelegatingLexer
+                             )
 from pygments.formatters import HtmlFormatter
+#from pygments.lexer import RegexLexer
+from pygments.token import *
 
 class DOM(list):
 
@@ -106,7 +111,41 @@ class Ps(Element):
             else:
                 html.append('<p class="ps"> {0} </p>'.format(line))
         return '\n'.join(html)
-            
+
+
+"""
+The idea behind creating a custom lexer is that
+it is impossible to know what line a comment came from if you
+filter it out before the code is converted to html.
+
+When code is converted to html, pygments also attempts
+to highlight the //# comments which I wish to remove
+
+An alternate to creating custom lexer's might be to
+create a custom filter http://pygments.org/docs/filters/
+"""
+#a better implementation might be with Callbacks, see pygments documentation
+# http://pygments.org/docs/lexerdevelopment/#callbacks
+class CustomLexer(DelegatingLexer):
+    def __init__(self, lex_type, **options):
+        super(lex_type, self).__init__(Comment_Lex, lex_type, **options)
+
+class NoteLexer(ExtededRegexLexer):
+
+    def comment_callback(lexer, match, ctx):
+        comment=match.group(1)
+        text=match.group(2)
+        yeild match.start(), Generic.Headline, comment + text
+        ctx.pos = match.end()
+
+    tokens = {
+        'root': [
+            ('[/]{2}[#].+', headline_callback)
+        ]
+    }
+
+#TODO Read into creating a filter for the //# comments/asides
+#    1. Possibly rename comments
 class Code(Element):
 
     def __init__(self, lang_, code_, name_=""):
@@ -114,8 +153,10 @@ class Code(Element):
         self.code_=code_
         self.comments_=[]
         #codelen1=len(self.code_)#
-        if '//#' in self.code_:
-            self.pull_comments()
+        #if '//#' in self.code_:
+        #    self.pull_comments()
+        #else:
+        #    self.comments_=[None for i in code_]
         #codelen2=len(self.code_)#
         #print("before: ", codelen1, " after: ", codelen2)
         super().__init__(name_)
@@ -140,12 +181,19 @@ class Code(Element):
         #print("2. len of code: ", len(self.code_))
         #print("\n")
 
-               
+    def test_html_parse(self, style_='colorful'):
+        lex=get_lexer_by_name(self.lang_.lower())
+        for token in lex.get_tokens(self.code_):
+            print(token)
+
     #Need to find a way to insert 'a' tag into the content of code after it has
     #been rendered into html code, also don't want the a tag to wrap block
     #elements as that would not be valid html
     #
-    #an insert type function for strings would make this more doable
+    #the line numbers are destoryed when code is translated
+    #searching for a segment can be hard because they are split by html tags
+    # pygments attempts to highlight //# so the best way would be to
+    # modify pygments highlighting function to ignore //# so that tags
     def get_html(self, style_='colorful'):
         #Pygments configuration
         lex=get_lexer_by_name(self.lang_.lower())
@@ -174,15 +222,18 @@ class Code(Element):
         
         # re.I = ignore case
         # re.S = dotall
-        html=html.split('\n')
-        for i, line in enumerate(html[:]):
+
+        """html2=html.split('\n')
+        print("length of html2: ", len(html2))
+        print("length of comments: ", len(self.comments_))
+        for i, line in enumerate(html2[:]):
             if self.comments_[i]:
                 pattern = re.compile('<pre>(.*?)</pre>', re.I | re.S)
                 temp=pattern.split(line)
-                temp.insert(1, '<a href="#" title={0}">'.format(self.comment_[i]))
+                temp.insert(1, '<a href="#" title={0}">'.format(self.comments_[i]))
                 temp.insert(4, '</a>')
-
-        html.join('\n')
+        #html2.join('\n')
+        '\n'.join(html2)"""
 
          
         #for i, each in enumerate(pattern.split(html)):
@@ -207,6 +258,8 @@ class parseNotes(object):
         file_out='{0}.html'.format(file_)
         self.BR=1
         self.DOM_=DOM()
+        print("FILE IN:  ", file_in)
+        print("FILE OUT: ", file_out)
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
         with open(file_out, "w") as file_out_obj:
@@ -237,11 +290,14 @@ $(function() { $(".ps a[title]").tooltips();  });
         values.pop(0) #this might be a bad idea...
         elements = re.findall(regex,file_string)
         self.master = list((x[:-1], y.strip()[:]) for x, y in zip(elements,values))
+        assert(self.master)
         #pprint.pprint(self.master)
 
     def make_html(self, file_out_obj):
         for element in self.master:
-            file_out_obj.write(self.format_html(element[0], element[1]))
+            elem_type=element[0]
+            elem_val=element[1]
+            file_out_obj.write(self.format_html(elem_type, elem_val))
 
     def format_html(self, bun, meat):
         html_headers = ('h1','h2','h2','h3','h4','h5','h6','h7','h8','h9')
@@ -267,8 +323,7 @@ $(function() { $(".ps a[title]").tooltips();  });
             #style_=HtmlFormatter(style='colorful').style
             #format_=HtmlFormatter(style=style_)
             c=Code(lang, code).get_html()
-            #print(c)
-            exit()
+            #c=Code(lang, code).test_html_parse()
             return c
         else:
             pass
