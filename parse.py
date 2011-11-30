@@ -5,12 +5,18 @@ import re
 import pprint
 
 from pygments import highlight
+#from pygments.lexer import (Lexer,
+#                            RegexLexer,
+#                            ExtendedRegexLexer,
+#                            DelegatingLexer)
+from pygments.lexer import ExtendedRegexLexer
+from pygments.lexer import DelegatingLexer
+from pygments.token import Generic
+
 from pygments.lexers import (get_lexer_by_name,
                              get_lexer_for_filename,
-                             get_lexer_for_mimetype,
-                             RegexLexer,
-                             DelegatingLexer
-                             )
+                             get_lexer_for_mimetype)
+
 from pygments.formatters import HtmlFormatter
 #from pygments.lexer import RegexLexer
 from pygments.token import *
@@ -130,17 +136,21 @@ class CustomLexer(DelegatingLexer):
     def __init__(self, lex_type, **options):
         super(lex_type, self).__init__(Comment_Lex, lex_type, **options)
 
-class NoteLexer(ExtededRegexLexer):
+class NoteLexer(ExtendedRegexLexer):
+
+    name = 'Notes'
+    aliases = ['notes']
+    filenames = ['*.n']
 
     def comment_callback(lexer, match, ctx):
         comment=match.group(1)
         text=match.group(2)
-        yeild match.start(), Generic.Headline, comment + text
+        yeild (match.start(), Generic.Headline, comment + text)
         ctx.pos = match.end()
 
     tokens = {
         'root': [
-            ('[/]{2}[#].+', headline_callback)
+            ('[/]{2}[#].+', comment_callback)
         ]
     }
 
@@ -202,7 +212,9 @@ class Code(Element):
         htmlFormat.cssclass='code'
         htmlFormat.cssfile='code.css'
 
-        html=highlight(self.code_, lex, htmlFormat)
+        cLex=NoteLexer()
+        html=highlight(self.code_, cLex, htmlFormat)
+
       
         #self.code_=self.code_.split('\n')
         #assert(len(self.code_)==len(self.comments_))
