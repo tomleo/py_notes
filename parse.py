@@ -5,10 +5,10 @@ import re
 import pprint
 
 from pygments import highlight
-#from pygments.lexer import (Lexer,
-#                            RegexLexer,
-#                            ExtendedRegexLexer,
-#                            DelegatingLexer)
+from pygments.lexer import (Lexer,
+                            RegexLexer,
+                            ExtendedRegexLexer,
+                            DelegatingLexer)
 from pygments.lexer import ExtendedRegexLexer
 from pygments.lexer import DelegatingLexer
 from pygments.token import Generic
@@ -113,81 +113,44 @@ class Ps(Element):
                 #html.append('<p class="ps">{0} <span class="comments">{1}</span></p>'.format(line,
                 #                                                                    self.comments_[i]))
                 #html.append('<p class="ps"> {0} <a href="#" title="Comment">{1}</a></p>'.format(line, self.comments_[i]))
-                html.append('<p class="ps"><a href="#" title="{1}">{0}</a></p>'.format(line, self.comments_[i]))
+                html.append('<p class="ps"><a class="comment" href="#" title="{1}">{0}</a></p>'.format(line, self.comments_[i]))
             else:
                 html.append('<p class="ps"> {0} </p>'.format(line))
         return '\n'.join(html)
 
 
-"""
-The idea behind creating a custom lexer is that
-it is impossible to know what line a comment came from if you
-filter it out before the code is converted to html.
-
-When code is converted to html, pygments also attempts
-to highlight the //# comments which I wish to remove
-
-An alternate to creating custom lexer's might be to
-create a custom filter http://pygments.org/docs/filters/
-"""
-#a better implementation might be with Callbacks, see pygments documentation
-# http://pygments.org/docs/lexerdevelopment/#callbacks
-class CustomLexer(DelegatingLexer):
-    def __init__(self, lex_type, **options):
-        super(lex_type, self).__init__(Comment_Lex, lex_type, **options)
-
-class NoteLexer(ExtendedRegexLexer):
-
-    name = 'Notes'
-    aliases = ['notes']
-    filenames = ['*.n']
-
-    def comment_callback(lexer, match, ctx):
-        comment=match.group(1)
-        text=match.group(2)
-        yeild (match.start(), Generic.Headline, comment + text)
-        ctx.pos = match.end()
-
-    tokens = {
-        'root': [
-            ('[/]{2}[#].+', comment_callback)
-        ]
-    }
-
-#TODO Read into creating a filter for the //# comments/asides
-#    1. Possibly rename comments
 class Code(Element):
 
     def __init__(self, lang_, code_, name_=""):
         self.lang_=lang_
         self.code_=code_
+        
         self.comments_=[]
-        #codelen1=len(self.code_)#
-        #if '//#' in self.code_:
-        #    self.pull_comments()
-        #else:
-        #    self.comments_=[None for i in code_]
-        #codelen2=len(self.code_)#
-        #print("before: ", codelen1, " after: ", codelen2)
+        if '//#' in code_:
+            self.pull_comments()
+        else:
+            self.code_ = self.code_.split('\n')
+            self.comments_=[None for i in self.code_]
+
+        print ("Interm vals")
+        pprint.pprint(self.code_)
+        pprint.pprint(self.comments_)
+
         super().__init__(name_)
 
     def pull_comments(self):
-        #print("1. len of code: ", len(self.code_))
-        self.code_=self.code_.split('\n')
+        self.code_ = self.code_.split('\n')
         for i, line in enumerate(self.code_):
             if '//#' in line:
                 cline = line.split('//#')
                 self.comments_.insert(i, cline[1])
                 self.code_[i]=cline[0]
-                #print ("line after pull: ", self.code_[i])
-                #print ("len of code: ", len(self.code_))
-                #exit()
             else:
                 self.comments_.insert(i, None)
         #print("Live from pull_comments()")
         #print("Code length: ", len(self.code_))
         #print("Comment length: ", len(self.comments_))
-        self.code_='\n'.join(self.code_)
+        #self.code_='\n'.join(self.code_)
         #print("2. len of code: ", len(self.code_))
         #print("\n")
 
@@ -196,14 +159,6 @@ class Code(Element):
         for token in lex.get_tokens(self.code_):
             print(token)
 
-    #Need to find a way to insert 'a' tag into the content of code after it has
-    #been rendered into html code, also don't want the a tag to wrap block
-    #elements as that would not be valid html
-    #
-    #the line numbers are destoryed when code is translated
-    #searching for a segment can be hard because they are split by html tags
-    # pygments attempts to highlight //# so the best way would be to
-    # modify pygments highlighting function to ignore //# so that tags
     def get_html(self, style_='colorful'):
         #Pygments configuration
         lex=get_lexer_by_name(self.lang_.lower())
@@ -211,46 +166,23 @@ class Code(Element):
         htmlFormat.noclasses=False
         htmlFormat.cssclass='code'
         htmlFormat.cssfile='code.css'
-
-        cLex=NoteLexer()
-        html=highlight(self.code_, cLex, htmlFormat)
-
-      
-        #self.code_=self.code_.split('\n')
-        #assert(len(self.code_)==len(self.comments_))
-        #print("About to enter the get_html() function forloop")
-        #for i, line in enumerate(self.code_):
-        #    if self.comments_[i]:
-        #        #tmp=list(html.partition(self.code_[i]))
-        #        tmp=list(html.partition('<pre>'))
-        #        print("1. ", tmp)
-        #        before='<a href="#" title="{0}">'.format(self.comments_[i])
-        #        tmp.insert(2, before)
-        #        print("2. ", tmp)
-        #        after='</a>'
-        #        tmp.insert(3, after)
-        #        html=''.join(tmp)
-        #        print("3. ", tmp)
-        
-        # re.I = ignore case
-        # re.S = dotall
-
-        """html2=html.split('\n')
-        print("length of html2: ", len(html2))
-        print("length of comments: ", len(self.comments_))
-        for i, line in enumerate(html2[:]):
-            if self.comments_[i]:
-                pattern = re.compile('<pre>(.*?)</pre>', re.I | re.S)
-                temp=pattern.split(line)
-                temp.insert(1, '<a href="#" title={0}">'.format(self.comments_[i]))
-                temp.insert(4, '</a>')
-        #html2.join('\n')
-        '\n'.join(html2)"""
-
-         
-        #for i, each in enumerate(pattern.split(html)):
-        #    print(i, " ", each)
-           
+        html=""
+        print("Lines of Code: ", len(self.code_))
+        print("Lines of Comments: ", len(self.comments_))
+        for i, line in enumerate(self.code_):
+            if len(line)>0:
+                tmp=highlight(line, lex, htmlFormat)
+                print("tmp before {0}".format(tmp))
+                tmp=tmp[23:-22]
+                print("tmp after {0}".format(tmp))
+                if self.comments_[i]:
+                    tmp_html='<a href="#" class="comment" title="{0}">{1}</a>'.format(self.comments_[i], tmp)
+                else:
+                    tmp_html=tmp
+                html += tmp_html + "\n"
+            else:
+                print ("SKIPPED")
+        html = '<div class="code"><pre>{0}</pre></div>'.format(html)
         return html
        
 
@@ -266,14 +198,20 @@ class parseNotes(object):
         self.DOM_=None
 
     def main(self, file_in):
+        #Get html filename from .n filename
         file_=file_in.split('.')[0]
         file_out='{0}.html'.format(file_)
+        #Will convert newlines to br's
         self.BR=1
         self.DOM_=DOM()
-        print("FILE IN:  ", file_in)
-        print("FILE OUT: ", file_out)
+        #print("FILE IN:  ", file_in)
+        #print("FILE OUT: ", file_out)
+
+        #Move file into memory and create dicionary with <content_type : content>
         with open(file_in) as file_in_obj:
             self.make_sections(file_in_obj)
+
+        #Write memory back to .html file
         with open(file_out, "w") as file_out_obj:
             file_out_obj.write("""<!doctype html>
 <html lang="en">
@@ -286,12 +224,13 @@ class parseNotes(object):
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
 <script src="tooltips.js"></script>
 <script>
-$(function() { $(".ps a[title]").tooltips();  });
+$(function() { $("a.comment").tooltips();  });
 </script>
 </head>
 <body>
 <div role="main" id="wrap">
 """)
+            #Breaks code into memory
             self.make_html(file_out_obj)
             file_out_obj.write("</div></body></html>")
 
@@ -305,12 +244,14 @@ $(function() { $(".ps a[title]").tooltips();  });
         assert(self.master)
         #pprint.pprint(self.master)
 
+    #Calls format_html for each content segment
     def make_html(self, file_out_obj):
         for element in self.master:
             elem_type=element[0]
             elem_val=element[1]
             file_out_obj.write(self.format_html(elem_type, elem_val))
 
+    #Generates html output for each typo of content segment
     def format_html(self, bun, meat):
         html_headers = ('h1','h2','h2','h3','h4','h5','h6','h7','h8','h9')
         if bun in html_headers:
@@ -332,10 +273,7 @@ $(function() { $(".ps a[title]").tooltips();  });
             i = meat.find('>')
             lang = meat[:i]
             code = meat[i+2:-7] #-7 to remove endcode...
-            #style_=HtmlFormatter(style='colorful').style
-            #format_=HtmlFormatter(style=style_)
             c=Code(lang, code).get_html()
-            #c=Code(lang, code).test_html_parse()
             return c
         else:
             pass

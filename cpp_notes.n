@@ -1,0 +1,32 @@
+h1: C++ Notes
+h2: Function returns
+h3: Never Return a Reference to a Local Object
+p: The following function will return a reference to a local object
+code<c++>:
+    const string &manip(const string& s) {
+        string ret = s;
+        // transform ret in some way
+        return ret; // Wrong: Returning reference to a local object!
+    }
+p: After function is called the memory that function used is released.
+So all local variables of the function will be erased.
+Theirfor a reference to a local variable at runtime will end up pointing to
+nothing.
+h3: Reference returns can be used without decalring an assosiated variable
+code<c++>:
+char &get_val(string &str, string::size_type ix) {
+    return str[ix];
+}
+int main() {
+    string s("a value");
+    cout << s << endl;   // prints a value
+    get_val(s, 0) = 'A'; // changes s[0] to A
+
+    cout << s << endl;   // prints A value
+    return 0;
+}
+
+h3: Returning a pointer
+p: once a function returned it's local objects are freed. returning a pointer
+to a local variable will result in a dangling pointer (referencing a nonexistant
+object)

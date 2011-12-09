@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PyParsed Note</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="code.css">
+<link rel="stylesheet" href="tooltips.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script src="tooltips.js"></script>
+<script>
+$(function() { $("a.comment").tooltips();  });
+</script>
+</head>
+<body>
+<div role="main" id="wrap">
+<h1>CSS Notes</h1><h2>Tricks and Tips</h2><h3>Make container elements play nice with padding and margins</h3><p>
+Set width of container, then set margin and padding on the elements within them
+<br />
+
+</p><p>
+My rule of thumb is, if I set a width, I don't set margin or padding. Likewise, if I'm setting a margin or padding, I don't set a width. Dealing with the box model can be such a pain, especially if you're dealing with percentages. Therefore, I set the width on the containers and then set margin and padding on the elements within them. Everything usually turns out swimmingly.
+<br />
+
+</p><h3>Min-Height in IE</h3><div class="code"><pre><span class="nt">selector</span> <span class="p">
+<a href="#" class="comment" title=" This is a code comment parse this!">	<span class="nt">min-height</span><span class="nd">:500px</span><span class="o">;</a>
+	<span class="nt">height</span><span class="nd">:auto</span> <span class="o">!</span><span class="nt">important</span><span class="o">
+	<span class="nt">height</span><span class="nd">:500px</span><span class="o">
+<span class="err">
+</pre></div><h3>Double Margin Bug (IE6)</h3><p>
+The Solution is
+<br />
+
+</p><div class="code"><pre><span class="nt">display</span><span class="nd">:inlin
+</pre></div><h3>Conditional CSS</h3><div class="code"><pre><span class="o">&lt;!</span><span class="nt">--</span><span class="o">[</span><span class="nt">if</span> <span class="nt">IE</span> <span class="o">]&gt
+<span class="o">&lt;![</span><span class="nt">endif</span><span class="o">]</span><span class="nt">--</span><span class="o">&gt
+</pre></div><h2>Floats</h2><p>
+Text wraps around block with float attribute.
+<br />
+
+</p><p>
+When float left and right, you must clear so wrapper box does not collapse.
+<br />
+
+</p><div class="code"><pre><a href="#" class="comment" title="looks bad symanticaly"><span class="nt">clear</span><span class="o">:</span> <span class="nt">both</span><span class="o">;</a>
+<a href="#" class="comment" title="creates scroll bar"><span class="nt">overflow</span><span class="o">:</span> <span class="nt">auto</span><span class="o">;</a>
+<a href="#" class="comment" title="creates float, text hidden can not be gotten"><span class="nt">overflow</span><span class="o">:</span> <span class="nt">hidden</span><span class="o">;</a>
+</pre></div><p>
+don't apply margin in the way your box is floated (double margin bug)
+<br />
+
+</p><h2>Typography</h2><p class="ps"><a class="comment" href="#" title=" __">&mdash; 	</a></p>
+<p class="ps"><a class="comment" href="#" title=" ...">&hellip;	</a></p>
+<p class="ps"><a class="comment" href="#" title=" (c)">&copy;		</a></p>
+<p class="ps"><a class="comment" href="#" title=" """>&ldquo/&rdquo	</a></p>
+<p class="ps"><a class="comment" href="#" title=" For Inches">""		</a></p>
+<p class="ps"><a class="comment" href="#" title=" ''">&lsquo/&rsquo	</a></p>
+<p class="ps"><a class="comment" href="#" title=" For Feet">''		</a></p>
+<p class="ps"><a class="comment" href="#" title=" ...">&hellip		</a></p><h3>Setting EM size to 10px instead of 12px</h3><div class="code"><pre><span class="nt">html</span>	<span class="p">{</span><span class="k">font-size</span><span class="o">:</span><span class="m">16px</span><span class="p">;</span> <span class="p">}</span> 	<span class="c">/* Make sure the default is always 16px *
+<span class="nt">body</span>	<span class="p">{</span><span class="k">font-size</span><span class="o">:</span><span class="m">62</span><span class="o">.</span><span class="m">5</span><span class="o">%</span><span class="p">;</span> <span class="p">}</span> 	<span class="c">/* 16px * 62.5% = 10px : 1em now = 10px*
+<span class="nt">p</span>	<span class="p">{</span><span class="k">font-size</span><span class="o">:</span><span class="m">1.2em</span><span class="p">;</span> <span class="p">}</span>	<span class="c">/* 12px *
+</pre></div><p>
+Line Height should have the ratio 	150%/1.5em
+<br />
+
+</p><p>
+Testing Contrast - Screen Shot website, make it grey-scale in photoshop
+<br />
+
+</p><p>
+- hyphen	Jacob Kaplan-Moss
+<br />
+
+- en dash	2:00-3:00
+<br />
+
+- em dash	
+<br />
+
+- minus		Subtration (20-5=15)
+<br />
+
+</p><h3>Typography and CSS3!</h3><h4>@font-face</h4><div class="code"><pre><span class="k">@font-face</span> <span class="p">{</span> <span class="nt">font-family</span><span class="o">:</span> <span class="s2">&quot;Fontin-Italic&quot;</span><span class="o">;</span> <span class="nt">src</span><span class="o">:</span> <span class="nt">url</span><span class="o">(</span><span class="s1">&#39;Fontin-Italic.otf&#39;</span><span class="o">)</span> <span class="nt">format</span><span class="o">(</span><span class="s1">&#39;opentype&#39;</span><span class="o">);</span> <span class="p">
+</pre></div><h4>Drop shadow</h4><div class="code"><pre><span class="nt">-webkit-box-shadow</span><span class="o">:</span> <span class="nt">5px</span> <span class="nt">5px</span> <span class="nt">5px</span> <span class="nf">#888</span><span class="o">;</span>	<span class="c">/* Adds drop shadow to fonts *
+<span class="nt">-moz-box-shadow</span><span class="o">:</span> <span class="nt">5px</span> <span class="nt">5px</span> <span class="nt">5px</span> <span class="nf">#888</span><span class="o">
+</pre></div><h3>The Font attribute</h3><div class="code"><pre><span class="nt">font-style</span><span class="o">:</span> <span class="o">(</span><span class="nt">italic</span><span class="o">,</span> <span class="nt">oblique</span><span class="o">,</span> <span class="nt">normal</span><span class="o">
+<span class="nt">font-variant</span><span class="o">:</span> <span class="o">(</span><span class="nt">normal</span><span class="o">,</span> <span class="nt">small-caps</span><span class="o">
+<span class="nt">font-weight</span><span class="o">:</span> <span class="o">(</span><span class="nt">lighter</span><span class="o">,</span> <span class="nt">normal</span><span class="o">,</span> <span class="nt">bold</span><span class="o">,</span> <span class="nt">bolder</span><span class="o">
+<span class="nt">font-size</span><span class="o">:</span> <span class="o">(</span><span class="nt">lots</span><span class="o">
+<span class="nt">line-height</span><span class="o">:</span> <span class="o">(</span><span class="nt">nornal</span><span class="o">,</span> <span class="nt">units</span><span class="o">
+<span class="nt">font-family</span><span class="o">:</span> <span class="o">(
+<span class="nt">font</span><span class="o">:</span> <span class="o">(</span><span class="nt">font-style</span> <span class="nt">font-variant</span> <span class="nt">font-weight</span> <span class="nt">font-size</span><span class="o">/</span><span class="nt">line-height</span> <span class="nt">font-family</span><span class="o">
+<span class="nt">parent</span> <span class="p">{</span> <span class="k">font</span><span class="o">:</span> <span class="k">italic</span> <span class="o">&lt;</span><span class="k">font-variant</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-weight</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-size</span><span class="o">&gt;/&lt;</span><span class="k">line-height</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-family</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">
+<span class="nt">child</span>  <span class="p">{</span> <span class="o">&lt;</span><span class="k">font-variant</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-weight</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-size</span><span class="o">&gt;/&lt;</span><span class="k">line-height</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="k">font-family</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">
+<span class="err">#</span><span class="o">//</span> <span class="nt">NOTE</span><span class="o">:</span> <span class="nt">the</span> <span class="nt">child</span> <span class="nt">element</span> <span class="nt">will</span> <span class="nt">not</span> <span class="nt">inherit</span> <span class="s2">&quot;italic&quot;</span><span class="o">,</span> <span class="nt">instead</span> <span class="nt">omitted</span> <span class="nt">attribues</span> <span class="nt">are</span> <span class="nt">set</span> <span class="nt">to</span> <span class="nt">there</span> <span class="s2">&quot;default&quot;</span> <span class="nt">value</span> <span class="nt">which</span> <span class="nt">is</span> <span class="nt">usually</span> <span class="s2">&quot;normal&quot;
+<span class="nt">font-variant</span><span class="o">:</span> <span class="o">(</span><span class="nt">small-caps</span><span class="o">
+<span class="nt">text-transform</span><span class="o">:</span> <span class="o">(</span><span class="nt">uppercase</span><span class="o">,</span> <span class="nt">lowercase</span><span class="o">,</span> <span class="nt">capitalize</span><span class="o">,</span> <span class="nt">none</span><span class="o">
+</pre></div><h1>Unix Notes</h1><h2>The Find Command</h2><p class="ps"><a class="comment" href="#" title="look in current directory for T.java">find . -name T.java 	</a></p>
+<p class="ps"><a class="comment" href="#" title="look for files ending in .conf in the /etc folder">find /etc -name '*conf' </a></p>
+<p class="ps"> find . -name '*.xml' </p>
+<p class="ps"><a class="comment" href="#" title="quotes keep shell from expanding wildcards">find . -not -name '*.java' -maxdepth 4  </a></p>
+<p class="ps"><a class="comment" href="#" title="find files">find . -type f		</a></p>
+<p class="ps"><a class="comment" href="#" title="find directories">find . -type d		</a></p>
+<p class="ps"><a class="comment" href="#" title="find links">find . -type l		</a></p>
+<p class="ps"><a class="comment" href="#" title="changed within a day">find . -mtime -1	</a></p>
+<p class="ps"><a class="comment" href="#" title="changed within 15 minutes">find . -mmin -15        </a></p>
+<p class="ps"><a class="comment" href="#" title="compare to filea">find . -newer foo.txt   </a></p>
+<p class="ps"><a class="comment" href="#" title="compare to date">find . -type f -newermt '2010-01-01'    </a></p>
+<p class="ps"><a class="comment" href="#" title="find file between dates">find . -type f -newermt '2010-01-01' ! -newermt '2010-06-01'    </a></p>
+<p class="ps"><a class="comment" href="#" title="find via permissions">find . -perm 644        </a></p>
+<p class="ps"> find . -perm -ug=w </p>
+<p class="ps"><a class="comment" href="#" title="find with size less than 1k">find . -size -1k        </a></p>
+<p class="ps"><a class="comment" href="#" title="find with size more than 100MB">find . -size +100M      </a></p>
+<p class="ps">  </p>
+<p class="ps"><a class="comment" href="#" title="find files and grep them for the world 'needle'. -l shows the file they came from">find . -type f -exec grep -l 'needle' {} \;	</a></p>
+<p class="ps">  </p>
+<p class="ps"><a class="comment" href="#" title="find file that ends with regex [cphx] and look for the word 'P_SET_FAIL" ">find . -type f -name "*.[cphx]" -exec grep -l 'P_SET_FAIL' {} \; 	</a></p>
+<p class="ps">  </p>
+<p class="ps"><a class="comment" href="#" title="find file that ends with c, cpp, h, or hxx and look inside that file for the words P_SET_FAIL, if found show the file name/location">find . -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hxx" \) -exec grep -l 'P_SET_FAIL' {} \;	</a></p><h2>Search</h2><p>
+Nothing to see here atm
+<br />
+
+Adding another line of text right here!
+<br />
+
+</p><div class="code"><pre><span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;This is C++ code&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">
+<span class="p">
+</pre></div><div class="code"><pre><span class="k">class</span> <span class="nc">parseNotes</span><span class="p">(</span><span class="nb">object</span><span class="p">)
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">=</span><span class="bp">Non
+    	<span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="nb">file</span><span class="p">
+    	<span class="bp">self</span><span class="o">.</span><span class="n">BR</span><span class="o">=</span><span class="bp">Non
+    	<span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">=</span><span class="bp">Non
+</pre></div><p>
+This paragraph will have some comments in it!!!
+<br />
+
+I know a comment in a paragraph? But why  <span class="comments"> This is a paragraph comment</span>
+<br />
+
+This is some more text right here also
+<br />
+
+</p></div></body></html>

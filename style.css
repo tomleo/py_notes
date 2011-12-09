@@ -7,9 +7,10 @@ body { 	font-family: arial, sans-serif;
 	margin: 0 auto; }
 
 p { font-family: Georgia, serif; }
-
+a { text-decoration: none; }
 #wrap { display: block; }
 
+.comment { } /*This is used to selecting the right anchor elements*/
 .comments { float: right;
 	    clear: left;
 	    display: block;
